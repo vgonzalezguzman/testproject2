@@ -1,9 +1,6 @@
 name: laravel-build
 run-name: ${{ github.actor }} is uploading new app version
-on:
-  push:
-    branches:
-      - main
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,12 +11,13 @@ jobs:
           node-version: '19'
       - uses: shivammathur/setup-php@master
         with:
-          php-version: 8.2
+          php-version: 8.1
           extensions: mbstring, ctype, fileinfo, openssl, PDO, bcmath, json, tokenizer, xml
       - run: composer install --no-dev --no-interaction --prefer-dist    
       - run: npm install
       - run: npm run build
       - run: rm -rf node_modules
+      - run: rm -rf storage
       - run: tar -czf app.tgz ./*
       - name: ssh scp ssh pipelines
         uses: cross-the-world/ssh-scp-ssh-pipelines@latest
@@ -30,18 +28,18 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: '22'
+          port: ${{ secrets.SSH_PORT }}
           connect_timeout: 10s
           first_ssh: |
             cd ${{ secrets.SSH_DIR }}
+            sudo rm -R ${{ secrets.SSH_DIR }}
             sudo mkdir -p ${{ secrets.SSH_DIR }}
             sudo chown -R www-data:www-data ${{ secrets.SSH_DIR }}
+            sudo chmod 775 ${{ secrets.SSH_DIR }}
+            cd ${{ secrets.SSH_DIR }}
           scp: |
             './app.tgz' => ${{ secrets.SSH_DIR }}
           last_ssh: |
             cd ${{ secrets.SSH_DIR }} 
             tar -xzf app.tgz
-            # Only copy if .env does not exist
-            if [ ! -f .env ]; then
-              cp env/env.example .env
-            fi
+            cp env/env.example .env
