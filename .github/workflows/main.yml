@@ -26,5 +26,5 @@ jobs:
           mkdir -p ~/.ssh/
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          scp -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} ./app.tgz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DIR }}/app.tgz
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.SSH_DIR }} && tar -xzf app.tgz && cp env/env.example .env'
+          scp -o StrictHostKeyChecking=no -P '22' ./app.tgz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DIR }}/app.tgz
+          ssh -o StrictHostKeyChecking=no -p '22' ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.SSH_DIR }} && tar -xzf app.tgz && cp env/env.example .env'
