@@ -1,22 +1,30 @@
-name: check-secrets
-on:
-  workflow_dispatch:
-
+name: laravel-build
+run-name: ${{ github.actor }} is uploading new app version
+on: [push]
 jobs:
-  check-secrets:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check SSH_KEY secret
-        run: echo "SSH_KEY:" ${{ secrets.SSH_KEY }}
-      
-      - name: Check SSH_PORT secret
-        run: echo "SSH_PORT:" ${{ secrets.SSH_PORT }}
-      
-      - name: Check SSH_USER secret
-        run: echo "SSH_USER:" ${{ secrets.SSH_USER }}
-      
-      - name: Check SSH_HOST secret
-        run: echo "SSH_HOST:" ${{ secrets.SSH_HOST }}
-      
-      - name: Check SSH_DIR secret
-        run: echo "SSH_DIR:" ${{ secrets.SSH_DIR }}
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '19'
+      - uses: shivammathur/setup-php@master
+        with:
+          php-version: 8.2
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, bcmath, json, tokenizer, xml
+      - run: composer install --no-dev --no-interaction --prefer-dist    
+      - run: npm install
+      - run: npm run build
+      - run: rm -rf node_modules
+      - run: rm -rf storage
+      - run: tar -czf app.tgz ./*
+      - name: Transfer files via SSH and SCP
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          scp -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} ./app.tgz ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DIR }}/app.tgz
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.SSH_DIR }} && tar -xzf app.tgz && cp env/env.example .env'
