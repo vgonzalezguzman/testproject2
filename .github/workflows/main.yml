@@ -1,5 +1,5 @@
 name: laravel-build
-run-name: ${{ github.actor }} is uploading new app version
+run-name: ${{ github.actor }} is uploading new app version!
 on: [push]
 jobs:
   build:
