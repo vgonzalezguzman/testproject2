@@ -7,16 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check SSH_KEY secret
-        run: echo "SSH_KEY: ${{ secrets.SSH_KEY }}"
+        run: echo "SSH_KEY:" ${{ secrets.SSH_KEY }}
       
       - name: Check SSH_PORT secret
-        run: echo "SSH_PORT: ${{ secrets.SSH_PORT }}"
+        run: echo "SSH_PORT:" ${{ secrets.SSH_PORT }}
       
       - name: Check SSH_USER secret
-        run: echo "SSH_USER: ${{ secrets.SSH_USER }}"
+        run: echo "SSH_USER:" ${{ secrets.SSH_USER }}
       
       - name: Check SSH_HOST secret
-        run: echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
+        run: echo "SSH_HOST:" ${{ secrets.SSH_HOST }}
       
       - name: Check SSH_DIR secret
-        run: echo "SSH_DIR: ${{ secrets.SSH_DIR }}"
+        run: echo "SSH_DIR:" ${{ secrets.SSH_DIR }}
