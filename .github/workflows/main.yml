@@ -21,14 +21,6 @@ jobs:
       - run: npm run build
       - run: rm -rf node_modules
       - run: tar -czf app.tgz ./*
-      - name: Check DNS resolution and connectivity
-        run: |
-          echo "Checking DNS for ${SSH_HOST}"
-          nslookup ${SSH_HOST}
-          echo "Pinging ${SSH_HOST}"
-          ping -c 4 ${SSH_HOST}
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
       - name: ssh scp ssh pipelines
         uses: cross-the-world/ssh-scp-ssh-pipelines@latest
         env:
